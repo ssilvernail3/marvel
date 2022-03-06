@@ -14,7 +14,7 @@ async function searchName(character) {
     comics.forEach(comic => {
         for (let name in comic) {
             // console.log(`${name}: ${comic[name]}`);
-            comic_name = comic.name
+            console.log(comic.name)
         };
         
     });
@@ -41,18 +41,12 @@ function addHero(hero) {
 
     const $infoList = $('#info');
     $infoList.empty();
-    let comics = resp.data.data.results[0].comics.items
 
     let $item = $(
         `<div id="${hero.id}">
             <form action="" class="hero-form">
                 <h5 class="name">${hero.name}</h5>
                 <p class="descrip">${hero.description}</p>
-                <ul>
-                    {foreach ${comics} as ${comic}}
-                    <li> {${comic.name}} </li>
-                    {/foreach}
-                </ul>
                 <button type="submit">Favorite</button>
             </form>
         </div>`
