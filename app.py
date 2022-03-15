@@ -8,10 +8,7 @@ from flask_bcrypt import Bcrypt
 API_BASE_URL = "https://gateway.marvel.com/"
 
 
-private_key = '45c228f93a924c8c9ddf602abd17fa61c8aa4e76'
-public_key = '9fc66a02b7eaad221022d19aee14503d'
-hashkey = '14bc49d69eac6d1dd823e2e75394321a'
-ts = '1'
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///marvel"
@@ -60,7 +57,11 @@ toolbar = DebugToolbarExtension(app)
 def home_page():
     """ Displays template for app homepage """
 
-    return render_template('base.html')
+    if 'username' not in session:
+        flash('Please Login First!', 'danger')
+        return redirect('/login')
+
+    return render_template('home.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -140,10 +141,20 @@ def user_info(username):
 #     return redirect(f'https://gateway.marvel.com/v1/public/characters?name={term}&ts=1&apikey=9fc66a02b7eaad221022d19aee14503d&hash=14bc49d69eac6d1dd823e2e75394321a')
 
 
-@app.route('/add_favorite')
-def add_favorite():
+@app.route('/users/<username>/add_favorite', methods=["POST"])
+def add_favorite(username):
+
+    user = User.query.get_or_404(username)
+
+    if 'username' not in session:
+        flash('Please Login First!', 'danger')
+        return redirect('/login')
 
 
+    
+    return redirect(f'/users/{user.username}/favorties')
+
+@app.route('/favorite')
+def show_favorite():
 
     return render_template('favorite.html')
-
