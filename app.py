@@ -1,14 +1,12 @@
 from flask import Flask, render_template, redirect, session, flash, request
 from flask_debugtoolbar import DebugToolbarExtension
-from models import connect_db, db, User
-from forms import RegisterUserForm, UserForm
+from models import connect_db, db, User, CreateHero
+from forms import RegisterUserForm, UserForm, SuperHeroForm
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
 
+
 API_BASE_URL = "https://gateway.marvel.com/"
-
-
-
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///marvel"
@@ -19,43 +17,13 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 bcrypt = Bcrypt()
 
-# CURR_USER_KEY = "curr_user"
-
-
 connect_db(app)
 
 toolbar = DebugToolbarExtension(app)
 
-
-# @app.before_request
-# def add_user_to_g():
-#     """If we're logged in, add curr user to Flask global."""
-
-#     if CURR_USER_KEY in session:
-#         user = User.query.get(session[CURR_USER_KEY])
-
-#     else:
-#         user = None
-
-
-# def do_login(user):
-#     """Log in user."""
-
-#     session[CURR_USER_KEY] = user.id
-
-
-# def do_logout():
-#     """Logout user."""
-
-#     if CURR_USER_KEY in session:
-#         del session[CURR_USER_KEY]
-
-
-
-
 @app.route('/')
 def home_page():
-    """ Displays template for app homepage """
+    """ Displays template for MarvelPedia homepage """
 
     if 'username' not in session:
         flash('Please Login First!', 'danger')
@@ -123,38 +91,65 @@ def logout():
     flash('Goodbye! See you again soon!', 'warning')
     return redirect('/login')
 
-@app.route('/users/<username>')
+@app.route('/users/<username>', methods=['GET', 'POST'])
 def user_info(username):
-    '''GET request shows User info / feedback'''
+    '''GET request render form for creating new super / POST request handles form submission'''
     user = User.query.get_or_404(username)
 
     if 'username' not in session:
         flash('Please Login First!', 'danger')
         return redirect('/login')
 
-    return render_template('users/user.html', user=user)
+    form = SuperHeroForm()
+
+    if form.validate_on_submit():
+        name = form.name.data
+        side = form.side.data
+        abilities = form.abilities.data
+        origin = form.origin.data
+        image_url = form.image_url.data
+
+        new_Super = CreateHero(name=name, side=side, abilities=abilities, origin=origin, image_url=image_url, username=username)
+        db.session.add(new_Super)
+        db.session.commit()
+        return redirect(f'/users/{user.username}')
+        
+    return render_template('users/user.html', user=user, form=form)
 
 
-# @app.route('/search')
-# def search():
-#     term = request.args['search']
-#     return redirect(f'https://gateway.marvel.com/v1/public/characters?name={term}&ts=1&apikey=9fc66a02b7eaad221022d19aee14503d&hash=14bc49d69eac6d1dd823e2e75394321a')
+@app.route('/<int:super_id>/edit', methods=['GET', 'POST'])
+def modify_super(super_id):
+    '''GET request renders edit form for super / POST request handles form submission'''
+
+    supers = CreateHero.query.get_or_404(super_id)
+    form = SuperHeroForm(obj=supers)
+
+    if form.validate_on_submit():
+        supers.name = form.name.data
+        supers.side = form.side.data
+        supers.abilities = form.abilities.data
+        supers.origin = form.origin.data
+        supers.image_url = form.image_url.data
+
+        flash(f'{supers.name} has been updated!')
+
+        db.session.commit()
+        return redirect(f'/users/{supers.username}')
+
+    return render_template('users/edit_super.html', form=form)
 
 
-@app.route('/users/<username>/add_favorite', methods=["POST"])
-def add_favorite(username):
-
-    user = User.query.get_or_404(username)
-
-    if 'username' not in session:
-        flash('Please Login First!', 'danger')
-        return redirect('/login')
-
-
+@app.route('/<int:super_id>/delete', methods=['POST'])
+def delete_super(super_id):
+    '''Deletes created super'''
     
-    return redirect(f'/users/{user.username}/favorties')
+    supers = CreateHero.query.get(super_id)
 
-@app.route('/favorite')
-def show_favorite():
+    if 'username' not in session:
+        flash('Please Login First!', 'danger')
+        return redirect('/login')
 
-    return render_template('favorite.html')
+    db.session.delete(supers)
+    db.session.commit()
+
+    return redirect(f'/users/{supers.username}')

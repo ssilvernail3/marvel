@@ -16,6 +16,7 @@ def connect_db(app):
 
 
 class User(db.Model):
+    """Model to create a User"""
 
     __tablename__ = 'users'
 
@@ -25,10 +26,10 @@ class User(db.Model):
     first_name = db.Column(db.String(25), nullable=False)
     last_name = db.Column(db.String(25), nullable=False)
     
-    # dob = db.Column(db.Integer, nullable=False)
+    created = db.relationship('CreateHero')
 
 
-    favorites = db.relationship('UserFavorites')
+    
 
 
     @classmethod
@@ -58,16 +59,20 @@ class User(db.Model):
             return False
 
 
-class UserFavorites(db.Model):
-    """User Favorites table"""
+class CreateHero(db.Model):
+    """User created superhero / supervillain"""
 
-    __tablename__ = 'favorites'
+    __tablename__ = 'created'
 
-    user = db.Column(db.Text, db.ForeignKey('users.username'))
-    name = db.Column(db.Text, nullable=False, primary_key=True)
-    description = db.Column(db.Text)
-
-    users = db.relationship('User')
-
-
-
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    
+    name = db.Column(db.Text, nullable=False, unique=True)
+    side = db.Column(db.Text, nullable=False)
+    abilities = db.Column(db.Text, nullable=False)
+    origin = db.Column(db.Text, nullable=False)
+    image_url = db.Column(db.Text)
+    
+    username = db.Column(db.Text, db.ForeignKey('users.username'))
+    
+    user = db.relationship('User')
+    

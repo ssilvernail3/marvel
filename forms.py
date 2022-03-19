@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, EmailField, validators
+from wtforms import StringField, PasswordField, EmailField, SelectField, validators
 from wtforms.validators import InputRequired
 
 class RegisterUserForm(FlaskForm):
@@ -20,3 +20,19 @@ class UserForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired()]) 
 
 
+class SuperHeroForm(FlaskForm):
+
+    '''Form for User to create a unique superhero / villan'''
+
+    name = StringField('Name', validators=[InputRequired()])
+    side = SelectField('Hero or Villian', choices=[('Hero', 'Hero'), ('Villain', 'Villain')], validators=[InputRequired()])
+    abilities = StringField('Abilities', validators=[InputRequired()])
+    origin = StringField('Origin Story', validators=[InputRequired()])
+    image_url = StringField('(Optional) Image URL')
+
+
+
+
+
+
+    

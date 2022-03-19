@@ -1,0 +1,90 @@
+
+body {
+    background: linear-gradient(-45deg, #053C5E, #1D3958, #353652, #4C334D, #643047, #7C2E41, #942B3B, #AB2836, #C32530, #DB222A);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    height: 100vh;
+    font-family: Hubballi;
+    font-size: larger;
+    color: whitesmoke;
+    }
+    
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+    }
+
+
+.card {
+    background: whitesmoke;
+    margin-bottom: 10px;
+
+}
+
+
+.card-content{
+    padding: 1.4em;
+}
+
+.card-content h2 {
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    font-weight: normal;
+    color: black;
+}
+
+.card-content p {
+    font-size: 95%;
+    color: black
+}
+
+
+
+#info {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    
+};
+
+.search {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+    justify-content: center;
+}
+
+
+.form-control {
+    margin: 2em;
+}
+
+#text {
+    align-items: center;
+    text-align: center;
+}
+
+.btn {
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar-custom {
+    background-color: #bd1f36;
+}
+
+.hero {
+    color: black
+}

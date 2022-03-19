@@ -101,7 +101,7 @@ function addHero(hero) {
     $infoList.empty();
 
     let $item = $(
-        `<div class="card text-center border-dark" style="width: 25rem;" id="result">
+        `<div class="card text-center border-dark hero" style="width: 25rem;" id="result">
             <form action="/favorite" class="hero-form">
                 <img class="card-img-top" src="${hero.image}/landscape_large.jpg"></img>
                 <input type="hidden" name="image" value="${hero.image}"/>

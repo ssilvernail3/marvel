@@ -4,10 +4,50 @@
 {% block content%}
 <body>
     
+    <div id="text" class="row justify-content-md-center">
+        <div class="col-md-7 col-lg-5">
+          <h2 class="join-message">Create a Super!</h2>
+    
+          <form method="POST" id="user_form" class="form-group">
+            {{ form.hidden_tag() }}
+    
+            {% for field in form if field.widget.input_type != 'hidden' %}
+              {% for error in field.errors %}
+                <span class="text-danger">{{ error }}</span>
+              {% endfor %}
+              {{ field(placeholder=field.label.text, class="form-control") }}
+            {% endfor %}
+    
+            <button class="btn btn-primary btn-block btn-lg">Create</button>
+          </form>
+        </div>
+      </div>
 
 
+{% for super in user.created %}
+<div id="centered" class="card text-center border-dark mx-auto mb-4" style="width: 25rem;" id="result">
+  <section class="cards">
+    <article class="cards">
+      <figure class="thumbnail">
+      <img class="card-img-top" src="{{super.image_url}}"></img>
+      </figure>
+      <div class="card-content">
+          <h2 class="card-title">{{super.name}}</h2>
+          <p class="card-text">{{super.side}}</p>
+          <p class="card-text">Abilities: {{super.abilities}}</p>
+          <p class="card-text">Origin: {{super.origin}}</p>
+          <form action="/{{super.id}}/edit" methods="POST">
+            <button class="btn btn-outline-success" type="submit">Edit</button>
+          </form>
+          <form action="/{{super.id}}/delete" method="POST">
+            <button class="btn btn-danger" type="submit">Delete</button>
+          </form>
+      </div>
+    </article>
+  </section>
+</div>
 
-
+{% endfor %}
 
 
 <script src="http://unpkg.com/jquery"></script>
