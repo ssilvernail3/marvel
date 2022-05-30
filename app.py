@@ -77,7 +77,7 @@ def login():
         if user:
             flash(f'Welcome Back {user.username}', 'success')
             session['username'] = username
-            return redirect(f'/users/{user.username}')
+            return redirect('/')
 
         else:
             form.username.errors = ['Invalid username / password']
