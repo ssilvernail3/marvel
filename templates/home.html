@@ -3,38 +3,32 @@
 {% block content %}
 
 
-<body>
-    
+<div class="container my-5">
+  <div class="text-center mb-4">
+    <h1 class="display-4 text-danger font-weight-bold">Welcome to MarvelPedia</h1>
+    <p class="lead">Explore your favorite heroes and villains from the Marvel Universe.</p>
+    <p>Use the search bar below to dive into our Marvel database. You can also create your own characters under the “Supers” tab.</p>
+  </div>
 
-
-    <div class="search">
-        <h1>Welcome to MarvelPedia</h1>
-        <p>Thank you for becoming a member and joining our community!</p>
-        <p>We are so happy to have you come to our wonderful world of Marvel. Feel free to explore our state of the art Marvel database and search for your favorite heros and villains with the search tool below.</p>
-        
-        
-    
-    
-    
-    <div id="info" class="container-md">
-    
-    </div>
-    
-    
-    
-    <form class="form-inline" id="search-form">
-        <input class="form-control" id="search-query">
-        <button class="btn btn-primary" type="submit">Search</button>
+  <div class="d-flex justify-content-center mb-4">
+    <form id="search-form" class="form-inline w-75 justify-content-center">
+      <input type="text" class="form-control form-control-lg mr-2 w-50" id="search-query" placeholder="Search a Marvel character...">
+      <button class="btn btn-danger btn-lg" type="submit">Search</button>
     </form>
-    
-    <p>You can also create your very own heros and villans! Just click the 'Supers' icon in the navbar to view and create heros and villains</p>
-    
-    
-    <script src="http://unpkg.com/jquery"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="/static/app.js"></script>
-    </div>
-</body>
+  </div>
+<div id="loading" class="text-center my-4" style="display: none;">
+  <div class="spinner-border text-danger" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+  <div id="info" class="row justify-content-center"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script src="http://unpkg.com/jquery"></script>
+<script src="https://unpkg.com/jquery"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 
 
 {%  endblock %}

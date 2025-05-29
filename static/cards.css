@@ -1,90 +1,89 @@
-
 body {
-    background: linear-gradient(-45deg, #053C5E, #1D3958, #353652, #4C334D, #643047, #7C2E41, #942B3B, #AB2836, #C32530, #DB222A);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
-    height: 100vh;
-    font-family: Hubballi;
-    font-size: larger;
-    color: whitesmoke;
-    }
-    
+  background: linear-gradient(-45deg, #053C5E, #1D3958, #353652, #4C334D, #643047, #7C2E41, #942B3B, #AB2836, #C32530, #DB222A);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+  min-height: 100vh;
+  font-family: 'Hubballi', sans-serif;
+  font-size: larger;
+  color: whitesmoke;
+  margin: 0;
+  padding: 0;
+}
+
 @keyframes gradient {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-    }
-
-
-.card {
-    background: whitesmoke;
-    margin-bottom: 10px;
-
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
-
-.card-content{
-    padding: 1.4em;
+h1, h5 {
+  text-align: center;
 }
-
-.card-content h2 {
-    margin-top: 0;
-    margin-bottom: 0.5em;
-    font-weight: normal;
-    color: black;
-}
-
-.card-content p {
-    font-size: 95%;
-    color: black
-}
-
-
-
-#info {
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-    
-};
 
 .search {
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-    text-align: center;
+  text-align: center;
+  padding: 2em;
 }
-
-h1 {
-    text-align: center;
-    justify-content: center;
-}
-
 
 .form-control {
-    margin: 2em;
-}
-
-#text {
-    align-items: center;
-    text-align: center;
+  margin: 1em auto;
 }
 
 .btn {
-    align-items: center;
-    justify-content: center;
+  display: inline-block;
+}
+
+#info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2em;
+}
+
+.card {
+  background: whitesmoke;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease-in-out;
+  width: 22rem;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.card-img-top {
+  border-radius: 8px 8px 0 0;
+}
+
+.card-content {
+  padding: 1.4em;
+}
+
+.card-content h2 {
+  margin: 0 0 0.5em 0;
+  font-weight: normal;
+  color: black;
+}
+
+.card-content p,
+.card-text,
+.list-group-item {
+  font-size: 95%;
+  color: black;
 }
 
 .navbar-custom {
-    background-color: #bd1f36;
+  background-color: #bd1f36;
 }
 
 .hero {
-    color: black
+  color: black;
 }

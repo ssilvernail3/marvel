@@ -1,156 +1,94 @@
 async function searchName(character) {
-    const resp = await axios.get(`https://gateway.marvel.com/v1/public/characters?name=${character}&ts=1&apikey=9fc66a02b7eaad221022d19aee14503d&hash=14bc49d69eac6d1dd823e2e75394321a`)
-    console.log(resp);
+  const ts = new Date().getTime();
+  const publicKey = "9fc66a02b7eaad221022d19aee14503d";
+  const privateKey = "45c228f93a924c8c9ddf602abd17fa61c8aa4e76";
+  const hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
 
+  try {
+    const resp = await axios.get(`https://gateway.marvel.com/v1/public/characters`, {
+      params: {
+        name: character,
+        ts: ts,
+        apikey: publicKey,
+        hash: hash
+      }
+    });
 
-    let hero = resp.data.data.results[0]; 
-    let name = hero.name;
-    let description = hero.description
-    let id = hero.id
-    let appearances = hero.comics.available
-    let series = hero.series.available
-    let image = hero.thumbnail.path
-  
-    console.log(hero.thumbnail.path);
+    if (resp.data.data.results.length === 0) {
+      return null;
+    }
 
-   
-  
-    let comics = hero.comics.items
-
-   
-    // for (let comic in comics) {
-    //     console.log(comic.items)
-    // };
-
-    // comics.forEach(comic => {
-    //     for (let name in comic) {
-    //         // console.log(`${name}: ${comic[name]}`);
-    //         // console.log(comic.name);
-    //         console.log(comic.name);
-    //         newLi = document.createElement('li');
-    //         newText = document.createTextNode(comic.name);
-    //         newLi.appendChild(newText);
-    //         newLi.classList.add(`${hero.id}`)
-    //         const $comicList = $('#comics');
-
-            
-    //        $comicList.append(newLi);
-    //     };
-        
-    
-        
-    // });
-
-    
-    
-
+    const hero = resp.data.data.results[0];
+    const securePath = hero.thumbnail.path.replace('http://', 'https://');
+    console.log("Hero Image URL:", `${hero.thumbnail.path}/portrait_uncanny.${hero.thumbnail.extension}`);
     return {
-        id: hero.id,
-        name: hero.name,
-        description: hero.description,
-        appearances: hero.comics.available,
-        image: hero.thumbnail.path,
-        series: hero.series.available
-        
-        
-        
-    
-
+      id: hero.id,
+      name: hero.name,
+      description: hero.description || "No description available.",
+      appearances: hero.comics.available,
+      series: hero.series.available,
+      image: `${securePath}/portrait_uncanny.${hero.thumbnail.extension}`
     };
-
-    return hero; 
-
-
-};
-
-// function addComics(comics) {
-//     const $comicList = $('#comics');
-//     $comicList.empty();
-
-//     comics.forEach(comic => {
-//         for (let name in comic) {
-//             // console.log(`${name}: ${comic[name]}`);
-//             // console.log(comic.name);
-//             console.log(comic.name);
-//             let $item = $(
-//                 `<div id="comics">
-//                     <ul>
-//                         <li>${comic.name}</li>
-//                     </ul>
-//                 </div>`
-//             );
-//             // console.log(comic.name);
-//             // newLi = document.createElement('li');
-//             // newText = document.createTextNode(comic.name);
-//             // newLi.appendChild(newText);
-//             // const $comicList = $('#comics');
-
-            
-            
-//         };
-//     $comicList.append($item);
-    
-
-//     });
-// };
+  } catch (err) {
+    console.error("API error:", err);
+    return null;
+  }
+}
 
 
 function addHero(hero) {
 
     const $infoList = $('#info');
-    $infoList.empty();
+  $infoList.empty();
 
-    let $item = $(
-        `<div class="card text-center border-dark hero" style="width: 25rem;" id="result">
-            <form action="/favorite" class="hero-form">
-                <img class="card-img-top" src="${hero.image}/landscape_large.jpg"></img>
-                <input type="hidden" name="image" value="${hero.image}"/>
-                <div class="card-body">
-                    <h5 class="card-title">${hero.name}</h5>
-                    <input type="hidden" name="name" value="${hero.name}"/>
-                    <p class="card-text">${hero.description}</p>
-                    <input type="hidden" name="description" value="${hero.description}"/>
-                    <p class="card-text">Number of Comic Book Appearances: ${hero.appearances}</p>
-                    <input type="hidden" name="appearances" value="${hero.appearances}"/>
-                    <p class="card-text">Number of Comic Series Appearances: ${hero.series}</p>
-                    <input type="hidden" name="series" value="${hero.series}"/>
-                </div>
-            </form>
-        </div>`
-    );
+  const $item = $(`
+    <div class="card mb-4 shadow-lg rounded" style="width: 22rem;">
+      <img class="card-img-top" src="${hero.image}" alt="${hero.name}">
+      <div class="card-body">
+        <h5 class="card-title text-danger font-weight-bold">${hero.name}</h5>
+        <p class="card-text">${hero.description}</p>
+        <ul class="list-group list-group-flush text-left">
+          <li class="list-group-item"><strong>Comic Appearances:</strong> ${hero.appearances}</li>
+          <li class="list-group-item"><strong>Series Appearances:</strong> ${hero.series}</li>
+        </ul>
+      </div>
+    </div>
+  `);
 
-  
-    $infoList.append($item); 
+  $infoList.append($item); 
 };
 
 
 $("#search-form").on("submit", async function handleSearch(evt) {
-    evt.preventDefault();
+  evt.preventDefault();
 
-    let character = $("#search-query").val();
-    if (!character) return;
+  const character = $("#search-query").val().trim();
+  if (!character) {
+    alert("Please enter a character name.");
+    return;
+  }
 
-    let hero = await searchName(character);
+  // 👇 Show the spinner and clear previous results
+  $("#loading").show();
+  $("#info").empty();
 
-    const $comicList = $('#comics');
+  try {
+    const hero = await searchName(character);
+    if (!hero) {
+      alert("Character not found. Please try another name.");
+      $("#loading").hide(); // hide spinner if no hero found
+      return;
+    }
 
     addHero(hero);
-
-    const searchBar = document.getElementById('search-query')
-
-    searchBar.value = '';
-
-    // const comicLis = document.querySelectorAll("div.comics > li");
-    // console.log(comicLis);
-    
-    
-    // console.log(comics);
-    // if (li.className != hero.id) {
-    //     li.remove(); 
-    // };
-    
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong. Please try again.");
+  } finally {
+    $("#loading").hide(); // ✅ Always hide the spinner
+    $("#search-query").val(""); // clear search bar
+  }
 });
 
 
-// const $comicList = $('#comics');
-// $comicList.empty();
+
