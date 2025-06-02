@@ -37,26 +37,23 @@ async function searchName(character) {
 
 
 function addHero(hero) {
-
-    const $infoList = $('#info');
+  const $infoList = $('#info');
   $infoList.empty();
 
   const $item = $(`
-    <div class="card mb-4 shadow-lg rounded" style="width: 22rem;">
+    <div class="card animate__animated animate__fadeInUp">
       <img class="card-img-top" src="${hero.image}" alt="${hero.name}">
       <div class="card-body">
-        <h5 class="card-title text-danger font-weight-bold">${hero.name}</h5>
+        <h5 class="card-title">${hero.name}</h5>
         <p class="card-text">${hero.description}</p>
-        <ul class="list-group list-group-flush text-left">
-          <li class="list-group-item"><strong>Comic Appearances:</strong> ${hero.appearances}</li>
-          <li class="list-group-item"><strong>Series Appearances:</strong> ${hero.series}</li>
-        </ul>
+        <p class="card-text"><strong>Comic Appearances:</strong> ${hero.appearances}</p>
+        <p class="card-text"><strong>Series Appearances:</strong> ${hero.series}</p>
       </div>
     </div>
   `);
 
-  $infoList.append($item); 
-};
+  $infoList.append($item);
+}
 
 
 $("#search-form").on("submit", async function handleSearch(evt) {
