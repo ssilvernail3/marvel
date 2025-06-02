@@ -63,3 +63,5 @@ Credits
 Developed by Shane Silvernail
 © 2025 Marvel — API data provided by Marvel.
 
+
+
