@@ -155,7 +155,3 @@ def delete_super(super_id):
     flash(f'{supers.name} has been deleted!', 'warning')
     return redirect(f'/users/{supers.username}')
 
-@app.route('/create-db')
-def create_db():
-    db.create_all()
-    return "Database tables created!"
