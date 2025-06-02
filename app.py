@@ -4,11 +4,12 @@ from models import connect_db, db, User, CreateHero
 from forms import RegisterUserForm, UserForm, SuperHeroForm
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
+import os
 
 API_BASE_URL = "https://gateway.marvel.com/"
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///marvel"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SECRET_KEY"] = "abc123"
