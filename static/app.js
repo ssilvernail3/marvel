@@ -1,17 +1,7 @@
 async function searchName(character) {
-  const ts = new Date().getTime();
-  const publicKey = "9fc66a02b7eaad221022d19aee14503d";
-  const privateKey = "45c228f93a924c8c9ddf602abd17fa61c8aa4e76";
-  const hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
-
   try {
-    const resp = await axios.get(`https://gateway.marvel.com/v1/public/characters`, {
-      params: {
-        name: character,
-        ts: ts,
-        apikey: publicKey,
-        hash: hash
-      }
+    const resp = await axios.get(`/api/search`, {
+      params: { name: character }
     });
 
     if (resp.data.data.results.length === 0) {
@@ -20,7 +10,8 @@ async function searchName(character) {
 
     const hero = resp.data.data.results[0];
     const securePath = hero.thumbnail.path.replace('http://', 'https://');
-    console.log("Hero Image URL:", `${hero.thumbnail.path}/portrait_uncanny.${hero.thumbnail.extension}`);
+    console.log("Hero Image URL:", `${securePath}/portrait_uncanny.${hero.thumbnail.extension}`);
+
     return {
       id: hero.id,
       name: hero.name,

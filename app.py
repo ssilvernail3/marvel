@@ -1,10 +1,17 @@
-from flask import Flask, render_template, redirect, session, flash, request
+from flask import Flask, render_template, redirect, session, flash, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from models import connect_db, db, User, CreateHero
 from forms import RegisterUserForm, UserForm, SuperHeroForm
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
+from dotenv import load_dotenv
 import os
+import requests
+import hashlib
+import time
+
+
+load_dotenv()
 
 API_BASE_URL = "https://gateway.marvel.com/"
 
@@ -27,7 +34,6 @@ connect_db(app)
 def home_page():
     """Displays MarvelPedia homepage - PUBLIC"""
     return render_template('home.html')
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -52,11 +58,9 @@ def register():
 
         session['username'] = username
         flash('Congratulations! You have created a new account!', 'success')
-
         return redirect('/')  # redirect to homepage
 
     return render_template('register.html', form=form)
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -78,7 +82,6 @@ def login():
 
     return render_template('login.html', form=form)
 
-
 @app.route('/logout')
 def logout():
     """Logout user"""
@@ -98,7 +101,6 @@ def user_info(username):
         return redirect('/login')
 
     user = User.query.get_or_404(username)
-
     form = SuperHeroForm()
 
     if form.validate_on_submit():
@@ -114,7 +116,6 @@ def user_info(username):
         return redirect(f'/users/{user.username}')
         
     return render_template('users/user.html', user=user, form=form)
-
 
 @app.route('/<int:super_id>/edit', methods=['GET', 'POST'])
 def modify_super(super_id):
@@ -140,7 +141,6 @@ def modify_super(super_id):
 
     return render_template('users/edit_super.html', form=form)
 
-
 @app.route('/<int:super_id>/delete', methods=['POST'])
 def delete_super(super_id):
     """Protected: Delete Superhero"""
@@ -155,3 +155,63 @@ def delete_super(super_id):
     flash(f'{supers.name} has been deleted!', 'warning')
     return redirect(f'/users/{supers.username}')
 
+# -------------------------------
+# API SEARCH ROUTE
+# -------------------------------
+
+@app.route('/api/search')
+def api_search():
+    """Server-side Marvel API proxy to avoid CORS, with retry logic"""
+
+    character_name = request.args.get('name', '')
+
+    ts = str(int(time.time()))
+    public_key = os.environ.get('MARVEL_PUBLIC_KEY')
+    private_key = os.environ.get('MARVEL_PRIVATE_KEY')
+
+    # Debug prints to confirm keys:
+    print(f"DEBUG - MARVEL_PUBLIC_KEY: {public_key}")
+    print(f"DEBUG - MARVEL_PRIVATE_KEY: {private_key}")
+
+    if not public_key or not private_key:
+        return jsonify({'error': 'Missing Marvel API keys'}), 500
+
+    to_hash = ts + private_key + public_key
+    hash_digest = hashlib.md5(to_hash.encode('utf-8')).hexdigest()
+
+    marvel_url = 'https://gateway.marvel.com/v1/public/characters'
+
+    params = {
+        'name': character_name,
+        'ts': ts,
+        'apikey': public_key,
+        'hash': hash_digest
+    }
+
+    max_retries = 3
+    retry_delay = 2  # seconds
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            print(f"Attempt {attempt}: Fetching from Marvel API...")
+            resp = requests.get(marvel_url, params=params)
+            resp.raise_for_status()  # raise error for 4xx/5xx
+            print(f"Success on attempt {attempt}")
+            data = resp.json()
+            return jsonify(data)
+
+        except requests.exceptions.HTTPError as http_err:
+            print(f"HTTP Error: {http_err} (Status code: {resp.status_code})")
+            if resp.status_code == 504 and attempt < max_retries:
+                print(f"Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                continue
+            else:
+                return jsonify({'error': 'Marvel API error', 'details': str(http_err)}), resp.status_code
+
+        except requests.RequestException as e:
+            print(f"Request failed: {e}")
+            return jsonify({'error': 'Marvel API request failed', 'details': str(e)}), 500
+
+    # If loop exhausted retries:
+    return jsonify({'error': 'Marvel API request failed after retries'}), 504
